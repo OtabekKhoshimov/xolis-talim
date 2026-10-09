@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Xolis ta'lim</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="tg.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Onest:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&display=swap">
+<style>
+/* Layout: one narrow column sized for Telegram; progress strip, then lesson cards in reading order */
+:root{
+  --bg:#F1F5F3; --surface:#FFFFFF; --sunk:#E6EEEA; --ink:#12241E; --muted:#56695F; --line:#D2DCD7;
+  --accent:#0E6A4E; --accent-soft:#D5EADF; --gold:#A8781B; --gold-soft:#F4E8CD;
+  --f-ar:"Scheherazade New","Amiri","Noto Naskh Arabic","Geeza Pro",serif;
+  --f-disp:"Fraunces",Georgia,"Times New Roman",serif;
+  --f-body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C1613; --surface:#13211C; --sunk:#0F1B17; --ink:#E5EEEA; --muted:#93A79E; --line:#24382F;
+  --accent:#3DBE8C; --accent-soft:#163A2D; --gold:#E2B456; --gold-soft:#3A2F17; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1613; --surface:#13211C; --sunk:#0F1B17; --ink:#E5EEEA; --muted:#93A79E; --line:#24382F;
+  --accent:#3DBE8C; --accent-soft:#163A2D; --gold:#E2B456; --gold-soft:#3A2F17; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:24px 48px;display:flex;flex-direction:column;gap:24px}
+.brand{display:flex;align-items:center;gap:14px}
+.mark{width:56px;height:56px;border-radius:16px;background:var(--accent);color:var(--surface);display:grid;place-items:center;font-family:var(--f-ar);font-size:2.2rem;line-height:1;flex:none}
+h1{font-family:var(--f-disp);font-size:1.9rem;margin:0;line-height:1.1}
+.sub{color:var(--muted);margin:2px 0 0}
+.progress{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.progress .row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:.92rem}
+.progress .row b{font-size:1.05rem}
+.bar{height:10px;border-radius:5px;background:var(--sunk);overflow:hidden}
+.bar span{display:block;height:100%;background:var(--accent);transition:width .5s}
+.eyebrow{font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.list{display:flex;flex-direction:column;gap:10px}
+.lesson{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent}
+.lesson:active{transform:scale(.99)}
+.lesson:hover{border-color:var(--accent)}
+.lesson .num{width:52px;height:52px;border-radius:14px;background:var(--gold-soft);display:grid;place-items:center;font-family:var(--f-ar);font-size:1.9rem;line-height:1}
+.lesson h2{font-size:1.05rem;margin:0}
+.lesson p{margin:2px 0 0;font-size:.87rem;color:var(--muted)}
+.pill{font-size:.75rem;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap;background:var(--sunk);color:var(--muted)}
+.pill.started{background:var(--gold-soft);color:var(--gold)}
+.pill.done{background:var(--accent-soft);color:var(--accent)}
+.soon{border:1.5px dashed var(--line);border-radius:16px;padding:16px;color:var(--muted);font-size:.92rem}
+.soon b{color:var(--ink);display:block;margin-bottom:2px}
+.note{font-size:.82rem;color:var(--muted);border-left:3px solid var(--gold);padding-left:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="brand">
+    <div class="mark" aria-hidden="true">خ</div>
+    <div>
+      <h1>Xolis ta'lim</h1>
+      <p class="sub">Qur'on o'qish uchun tajvid: tushuntirish, simulyator va mashq</p>
+    </div>
+  </header>
+
+  <div class="progress" aria-live="polite">
+    <div class="row"><span>Tugallangan darslar</span><b id="doneCount">0 / 1</b></div>
+    <div class="bar"><span id="doneBar" style="width:0%"></span></div>
+  </div>
+
+  <section class="list" aria-label="Darslar">
+    <span class="eyebrow">Darslar</span>
+    <div id="lessons"></div>
+    <div class="soon"><b>Keyingi darslar tayyorlanmoqda</b>Kitobning boshqa boblari shu yerga navbat bilan qo'shiladi.</div>
+  </section>
+
+  <p class="note">Sinov versiyasi. Darslar ustoz tomonidan ko'rib chiqilmoqda.</p>
+</div>
+<script>
+var LESSONS=[
+  {id:"harf-sifatlari",file:"harf-sifatlari.html",glyph:"ص",title:"Harf sifatlari",desc:"17 sifat: og'iz ichi simulyatori, juftliklar va mashq"}
+];
+function render(p){
+  var done=0,box=document.getElementById("lessons");box.innerHTML="";
+  LESSONS.forEach(function(l){
+    var st=p[l.id]||{},cls="",txt="Yangi";
+    if(st.done){cls="done";txt="Tugallandi";done++}else if(st.opened){cls="started";txt="Boshlangan"}
+    var a=document.createElement("a");a.className="lesson";a.href=l.file;
+    a.innerHTML='<div class="num">'+l.glyph+'</div><div style="min-width:0"><h2>'+l.title+'</h2><p>'+l.desc+(st.correct?' · '+st.correct+' ta toʻgʻri javob':'')+'</p></div><span class="pill '+cls+'">'+txt+'</span>';
+    a.addEventListener("click",function(){window.XT&&XT.haptic()});
+    box.appendChild(a);
+  });
+  document.getElementById("doneCount").textContent=done+" / "+LESSONS.length;
+  document.getElementById("doneBar").style.width=(done/LESSONS.length*100)+"%";
+}
+render({});
+if(window.XT)XT.getProgress(render);
+if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.BackButton)try{Telegram.WebApp.BackButton.hide()}catch(e){}
+</script>
+</body>
+</html>

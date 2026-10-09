@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Harf sifatlari — Xolis ta'lim</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="tg.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Onest:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&display=swap">
+<style>
+/* Layout: one calm reading column (mushaf-like), the mouth simulator as the hero, then pairs → single sifats → strength chart → quiz */
+:root{
+  --bg:#F1F5F3; --surface:#FFFFFF; --sunk:#E6EEEA; --ink:#12241E; --muted:#56695F; --line:#D2DCD7;
+  --accent:#0E6A4E; --accent-soft:#D5EADF; --gold:#A8781B; --gold-soft:#F4E8CD;
+  --strong:#0E6A4E; --weak:#3A69AE; --weak-soft:#DCE6F4; --neutral:#7D67A8; --neutral-soft:#E8E1F2; --stop:#C0392B;
+  --tissue:#F3DDD6; --tissue-line:#C69689; --tongue:#E8A099; --tongue-line:#B2625B; --cavity:#FBF3F0;
+  --f-ar:"Scheherazade New","Amiri","Noto Naskh Arabic","Geeza Pro",serif;
+  --f-disp:"Fraunces",Georgia,"Times New Roman",serif;
+  --f-body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C1613; --surface:#13211C; --sunk:#0F1B17; --ink:#E5EEEA; --muted:#93A79E; --line:#24382F;
+  --accent:#3DBE8C; --accent-soft:#163A2D; --gold:#E2B456; --gold-soft:#3A2F17;
+  --strong:#3DBE8C; --weak:#7FA8E6; --weak-soft:#1B2B44; --neutral:#B49CE0; --neutral-soft:#2B2340; --stop:#F06A5A;
+  --tissue:#3A2926; --tissue-line:#86625A; --tongue:#B9645D; --tongue-line:#E7A39B; --cavity:#1A1412; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1613; --surface:#13211C; --sunk:#0F1B17; --ink:#E5EEEA; --muted:#93A79E; --line:#24382F;
+  --accent:#3DBE8C; --accent-soft:#163A2D; --gold:#E2B456; --gold-soft:#3A2F17;
+  --strong:#3DBE8C; --weak:#7FA8E6; --weak-soft:#1B2B44; --neutral:#B49CE0; --neutral-soft:#2B2340; --stop:#F06A5A;
+  --tissue:#3A2926; --tissue-line:#86625A; --tongue:#B9645D; --tongue-line:#E7A39B; --cavity:#1A1412; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:clamp(16px,4vw,32px);padding-block:28px 64px;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{font-family:var(--f-disp);font-weight:700;text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(2rem,5vw,3rem)}
+h2{font-size:clamp(1.5rem,3.4vw,2rem)}
+h3{font-size:1.15rem}
+p{margin:0;max-width:65ch}
+.eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.ar{font-family:var(--f-ar);direction:rtl}
+.muted{color:var(--muted)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{display:flex;flex-direction:column;gap:18px}
+.sechead{display:flex;flex-direction:column;gap:6px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:end}
+.hero .lead{font-size:1.08rem;color:var(--muted)}
+.tree{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.tree .root{display:flex;align-items:baseline;gap:10px}
+.tree .root b{font-family:var(--f-disp);font-size:2.4rem;color:var(--accent);line-height:1}
+.tree .branches{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tree .br{background:var(--sunk);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.tree .br b{font-size:1.4rem;font-family:var(--f-disp)}
+.tree .br span{font-size:.85rem;color:var(--muted)}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px}
+nav.toc a{font-size:.88rem;color:var(--ink);text-decoration:none;border:1px solid var(--line);padding:6px 12px;border-radius:999px;background:var(--surface)}
+nav.toc a:hover{border-color:var(--accent);color:var(--accent)}
+
+/* simulator */
+.sim{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:clamp(14px,2.4vw,24px);display:flex;flex-direction:column;gap:18px}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.picker{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;direction:rtl;padding:0 4px}
+.swipehint{display:none;font-size:.78rem;color:var(--muted);text-align:center;margin:0}
+.picker button{font-family:var(--f-ar);font-size:1.6rem;line-height:1;height:46px;min-width:0;padding:0;border-radius:10px;border:1px solid var(--line);background:var(--bg);transition:background .15s,border-color .15s}
+.picker button:hover{border-color:var(--accent)}
+.picker button[aria-pressed="true"]{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+.simgrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px}
+.stage{background:var(--sunk);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:8px}
+.stage svg{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted);padding:0 6px 4px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.ctrls{display:flex;gap:8px;padding:0 6px 6px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:.88rem}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+.info{display:flex;flex-direction:column;gap:14px;min-width:0}
+.bigletter{display:flex;align-items:center;gap:16px}
+.bigletter .glyph{font-family:var(--f-ar);font-size:4.4rem;line-height:1;width:96px;height:96px;display:grid;place-items:center;background:var(--gold-soft);color:var(--ink);border-radius:16px}
+.bigletter h3{font-size:1.6rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:baseline;gap:6px;padding:5px 10px;border-radius:8px;font-size:.88rem;font-weight:600;border:1px solid transparent}
+.chip small{font-weight:400;opacity:.85}
+.chip.s{background:var(--accent-soft);color:var(--strong)}
+.chip.w{background:var(--weak-soft);color:var(--weak)}
+.chip.n{background:var(--neutral-soft);color:var(--neutral)}
+.chip.c{border-style:dashed;border-color:currentColor}
+.meter{display:flex;flex-direction:column;gap:6px}
+.meter .bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--sunk)}
+.meter .bar span{display:block;height:100%;transition:width .4s}
+.meter .lbl{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.explain{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.explain li{display:grid;grid-template-columns:18px 1fr;gap:8px;font-size:.93rem}
+.explain li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--gold);margin-top:8px}
+.tryit{background:var(--gold-soft);border-radius:12px;padding:12px 14px;font-size:.93rem}
+.tryit b{display:block;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;color:var(--gold)}
+
+/* pairs */
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tabs button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;font-size:.92rem;font-weight:600}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pairpanel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:clamp(14px,2.4vw,24px);display:flex;flex-direction:column;gap:18px}
+.sides{display:grid;gap:12px}
+.side{border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.side.s{background:var(--accent-soft)} .side.w{background:var(--weak-soft)} .side.n{background:var(--neutral-soft)}
+.side .nm{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.side .nm b{font-family:var(--f-disp);font-size:1.35rem}
+.side.s .nm b{color:var(--strong)} .side.w .nm b{color:var(--weak)} .side.n .nm b{color:var(--neutral)}
+.side .tag{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;opacity:.8}
+.side .mnem{font-family:var(--f-ar);font-size:2rem;direction:rtl;line-height:1.5}
+.side .mean{font-size:.85rem;color:var(--muted);font-style:italic}
+.side .count{font-variant-numeric:tabular-nums;font-size:.85rem;color:var(--muted)}
+.lgrid{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:5px;direction:rtl}
+.lgrid div{font-family:var(--f-ar);font-size:1.45rem;text-align:center;border-radius:8px;padding:4px 0;line-height:1.3;transition:background .3s,color .3s}
+.lgrid .s{background:var(--strong);color:var(--surface)}
+.lgrid .w{background:var(--weak);color:var(--surface)}
+.lgrid .n{background:var(--neutral);color:var(--surface)}
+.rule{border-left:3px solid var(--gold);padding:4px 0 4px 12px;font-size:.95rem}
+.splitbar{display:flex;height:28px;border-radius:8px;overflow:hidden;font-size:.8rem;font-weight:700;color:var(--surface);font-variant-numeric:tabular-nums}
+.splitbar span{display:flex;align-items:center;justify-content:center;transition:flex-grow .5s;min-width:0;white-space:nowrap;overflow:hidden}
+
+/* singles */
+.singles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.single{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.single:hover{border-color:var(--accent)}
+.single .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.single .top b{font-family:var(--f-disp);font-size:1.2rem}
+.single .ltrs{font-family:var(--f-ar);font-size:1.7rem;direction:rtl;color:var(--accent);letter-spacing:.15em}
+.single p{font-size:.9rem;color:var(--muted)}
+
+/* chart */
+.chartbox{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.chartscroll{overflow-x:auto}
+.chartscroll svg{min-width:560px;width:100%;height:auto;display:block}
+.chartscroll .barhit{cursor:pointer}
+.chartscroll .barhit:hover rect.bg{fill:var(--sunk)}
+
+/* quiz */
+.quiz{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:clamp(14px,2.4vw,24px);display:flex;flex-direction:column;gap:16px}
+.qstats{display:flex;gap:18px;flex-wrap:wrap;font-variant-numeric:tabular-nums;font-size:.9rem;color:var(--muted)}
+.qstats b{color:var(--ink);font-size:1.1rem}
+.qtext{font-size:1.15rem;font-weight:600}
+.qtext .ar{font-size:2.2rem;color:var(--accent);padding:0 6px}
+.qopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.qopts button{border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:12px 10px;font-weight:600}
+.qopts button.ar{font-size:2rem;padding:4px 10px;font-weight:400}
+.qopts button:hover:not(:disabled){border-color:var(--accent)}
+.qopts button.ok{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+.qopts button.bad{background:var(--stop);color:var(--surface);border-color:var(--stop)}
+.qfb{font-size:.95rem;min-height:1.5em}
+.benefits{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.benefits div{border-top:2px solid var(--gold);padding-top:10px;font-size:.93rem}
+.benefits b{display:block;font-family:var(--f-disp);font-size:1.05rem;margin-bottom:2px}
+.src{font-size:.82rem;color:var(--muted)}
+.backlink{font-size:.9rem;color:var(--accent);text-decoration:none;font-weight:600}
+.done-banner{background:var(--accent-soft);color:var(--strong);border-radius:12px;padding:12px 14px;font-weight:600}
+
+@media (max-width:820px){
+  .hero,.simgrid{grid-template-columns:minmax(0,1fr)}
+  .stage,.picker{min-width:0;max-width:100%}
+  .lgrid{grid-template-columns:repeat(7,minmax(0,1fr))}
+  .picker{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:2px 4px 6px;scrollbar-width:none}
+  .picker::-webkit-scrollbar{display:none}
+  .picker button{flex:0 0 50px;height:52px;scroll-snap-align:center}
+  .swipehint{display:block}
+  .sim{padding:10px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<a class="backlink" id="backlink" href="index.html">← Barcha darslar</a>
+
+<header class="hero">
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">Tajvid · 1-dars</span>
+    <h1>Harf sifatlari</h1>
+    <p class="lead">Maxraj harfning <b>qayerdan</b> chiqishini aytadi. Sifat esa uning <b>qanday</b> chiqishini: jarangli yoki nafasli, qattiq yoki sirgʻaluvchi, yoʻgʻon yoki ingichka. Bir xil joydan chiqadigan <span class="ar">س</span> va <span class="ar">ص</span> ni faqat sifat ajratadi.</p>
+    <nav class="toc">
+      <a href="#sim">Simulyator</a><a href="#pairs">5 juft sifat</a><a href="#singles">7 yakka sifat</a><a href="#chart">Kuchlilik grafigi</a><a href="#quiz">Mashq</a>
+    </nav>
+  </div>
+  <div class="tree" aria-label="Sifatlar tuzilishi">
+    <div class="root"><b>17</b><span>sifat (tajvid ulamolarining koʻpchiligi nazdida)</span></div>
+    <div class="branches">
+      <div class="br"><b>10</b><span>zidi bor: 5 juft, har birining qarama-qarshisi bor</span></div>
+      <div class="br"><b>7</b><span>zidi yoʻq: yakka sifatlar</span></div>
+    </div>
+    <p class="src">Qoida: zidi bor juftlikdan har bir harfda <b>faqat bittasi</b> boʻladi. Shuning uchun har bir harfda kamida 5 ta sifat bor.</p>
+  </div>
+</header>
+
+<section id="sim">
+  <div class="sechead">
+    <span class="eyebrow">Ogʻiz ichida nima boʻlyapti</span>
+    <h2>Harfni tanlang va kuzating</h2>
+    <p class="muted">Har bir harf tanlanganda til holati, tovush paychalari va havo oqimi shu harfning sifatlariga qarab oʻzgaradi.</p>
+  </div>
+  <div class="sim">
+    <div class="simgrid">
+      <div class="stage">
+        <svg id="mouth" viewBox="60 30 330 280" role="img" aria-label="Ogʻiz boʻshligʻi kesimi">
+          <!-- head tissue -->
+          <path d="M92 305 L92 150 Q94 70 180 52 Q300 38 348 78 L374 104 Q380 114 366 114 L354 112 Q358 128 356 140 L352 150 Q360 160 356 176 Q354 200 336 214 Q300 236 262 240 L150 262 Q140 268 128 305 Z" fill="var(--tissue)" stroke="var(--tissue-line)" stroke-width="1.5"/>
+          <!-- airway cavity -->
+          <path d="M98 305 L98 152 Q100 104 124 98 Q200 74 292 98 L326 110 L334 128 L348 142 L348 156 L336 162 L320 172 L300 204 Q250 232 150 252 L122 262 L120 305 Z" fill="var(--cavity)"/>
+          <!-- nasal floor / palate -->
+          <path d="M118 128 Q200 78 292 100 L328 110" fill="none" stroke="var(--tissue-line)" stroke-width="3" stroke-linecap="round"/>
+          <path id="velum" d="M118 128 Q110 140 114 150" fill="none" stroke="var(--tissue-line)" stroke-width="3" stroke-linecap="round"/>
+          <!-- teeth -->
+          <path d="M326 110 L334 110 L333 136 L327 136 Z" fill="var(--surface)" stroke="var(--tissue-line)"/>
+          <path d="M318 172 L328 170 L330 192 L321 194 Z" fill="var(--surface)" stroke="var(--tissue-line)"/>
+          <!-- lips -->
+          <path d="M334 112 Q356 116 358 140 Q348 146 336 140 Z" fill="var(--tongue)" opacity=".55"/>
+          <path d="M336 160 Q352 156 358 166 Q354 190 330 198 Z" fill="var(--tongue)" opacity=".55"/>
+          <!-- tongue -->
+          <path id="tongue" fill="var(--tongue)" stroke="var(--tongue-line)" stroke-width="1.5"/>
+          <!-- larynx -->
+          <line x1="98" y1="250" x2="98" y2="305" stroke="var(--tissue-line)" stroke-width="2"/>
+          <line id="cordL" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+          <line id="cordR" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+          <g id="waves" fill="none" stroke="var(--gold)" stroke-width="2"></g>
+          <!-- articulation marker -->
+          <g id="stopmark"></g>
+          <g id="fx"></g>
+          <g id="particles"></g>
+          <!-- labels -->
+          <g font-family="Onest,system-ui,sans-serif" font-size="10" fill="var(--muted)">
+            <text x="196" y="70">tanglay</text>
+            <text x="64" y="282">tovush</text>
+            <text x="64" y="294">paychalari</text>
+            <text x="64" y="140">halqum</text>
+            <text x="200" y="232" fill="var(--tongue-line)">til</text>
+            <text x="352" y="216">lab</text>
+          </g>
+          <text id="svgLetter" x="372" y="298" text-anchor="end" font-size="42" fill="var(--accent)" font-family="Scheherazade New,Amiri,serif"></text>
+        </svg>
+        <div class="picker" id="picker" role="group" aria-label="Harflar"></div>
+        <p class="swipehint">← harflarni suring →</p>
+        <div class="legend">
+          <span><i style="background:var(--gold)"></i>jarangli tovush</span>
+          <span><i style="background:var(--weak)"></i>oqib chiqayotgan nafas</span>
+          <span><i style="background:var(--stop);border-radius:2px"></i>maxraj (toʻsiq) nuqtasi</span>
+        </div>
+        <div class="ctrls">
+          <button class="btn" id="pauseBtn" type="button">Toʻxtatish</button>
+          <button class="btn" id="slowBtn" type="button" aria-pressed="false">Sekin</button>
+          <button class="btn" id="randBtn" type="button">Tasodifiy harf</button>
+        </div>
+      </div>
+      <div class="info" id="info"></div>
+    </div>
+  </div>
+</section>
+
+<section id="pairs">
+  <div class="sechead">
+    <span class="eyebrow">Zidi bor sifatlar · 10 ta</span>
+    <h2>5 ta juftlik</h2>
+    <p class="muted">Har bir juftlikda harflar ikki (yoki uch) guruhga boʻlinadi. Qisqa jumlani yod oling: oz sonli guruh shu jumlada, qolgan hamma harflar qarama-qarshi tomonda.</p>
+  </div>
+  <div class="tabs" id="pairTabs" role="tablist"></div>
+  <div class="pairpanel" id="pairPanel" role="tabpanel"></div>
+</section>
+
+<section id="singles">
+  <div class="sechead">
+    <span class="eyebrow">Zidi yoʻq sifatlar · 7 ta</span>
+    <h2>Yakka sifatlar</h2>
+    <p class="muted">Bular faqat ayrim harflarda boʻladi. Kartani bosing: simulyator shu sifatli harfni koʻrsatadi.</p>
+  </div>
+  <div class="singles" id="singlesGrid"></div>
+</section>
+
+<section id="chart">
+  <div class="sechead">
+    <span class="eyebrow">Grafik</span>
+    <h2>Qaysi harf kuchli, qaysi biri zaif</h2>
+    <p class="muted">Har bir harfning kuchli sifatlari yuqoriga, zaif sifatlari pastga sanaladi. Kuchli harf ogʻizda koʻproq kuch va aniqlik talab qiladi. Ustunni bosib, harfni simulyatorda oching.</p>
+  </div>
+  <div class="chartbox">
+    <div class="chartscroll"><svg id="strengthChart" viewBox="0 0 600 240" role="img" aria-label="Harflar kuchliligi grafigi"></svg></div>
+    <p class="src">Oʻquv yordami: bayniyya, izloq, ismot hamda shartli liyn hisobga olinmagan. Kuchli/zaif tasnifi koʻpchilik tajvid kitoblaridagi taqsimotga asoslangan.</p>
+  </div>
+</section>
+
+<section id="quiz">
+  <div class="sechead">
+    <span class="eyebrow">Amaliyot</span>
+    <h2>Oʻzingizni sinang</h2>
+  </div>
+  <div class="quiz">
+    <div class="qstats"><span>Toʻgʻri: <b id="qOk">0</b></span><span>Jami: <b id="qAll">0</b></span><span>Ketma-ket: <b id="qStreak">0</b></span><span>Rekord: <b id="qBest">0</b></span></div>
+    <div class="qtext" id="qText"></div>
+    <div class="qopts" id="qOpts"></div>
+    <div class="qfb" id="qFb" aria-live="polite"></div>
+    <div><button class="btn primary" id="qNext" type="button">Keyingi savol</button></div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><span class="eyebrow">Nega kerak</span><h2>Sifatlarni bilishning 3 foydasi</h2></div>
+  <div class="benefits">
+    <div><b>Harflarni ajratish</b>Maxraji bir boʻlgan harflarni bir-biridan farqlash: <span class="ar">س</span> va <span class="ar">ص</span>, <span class="ar">ت</span> va <span class="ar">ط</span>.</div>
+    <div><b>Idgʻomni tushunish</b>Maxraji bir boʻlgan zaif harf kuchli harfga idgʻom qilinadi. Qaysi biri kuchli ekanini sifat aytadi.</div>
+    <div><b>Haqqini ado qilish</b>Har bir harfni oʻz haqqi bilan, chiroyli talaffuz qilish.</div>
+  </div>
+</section>
+
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const LET=[["ء","Hamza",.17],["ب","Bo",.985],["ت","To",.84],["ث","So",.9],["ج","Jim",.6],["ح","Ḥo",.27],["خ","Xo",.35],["د","Dol",.84],["ذ","Zol",.9],["ر","Ro",.8],["ز","Zay",.88],["س","Sin",.88],["ش","Shin",.6],["ص","Sod",.88],["ض","Zod",.68],["ط","Ṭo",.84],["ظ","Ẓo",.9],["ع","Ayn",.27],["غ","Gʻayn",.35],["ف","Fa",.95],["ق","Qof",.44],["ك","Kof",.52],["ل","Lom",.8],["م","Mim",.985],["ن","Nun",.8],["ه","Ha",.17],["و","Vov",.985],["ي","Yo",.6]];
+const NAME={};LET.forEach(l=>NAME[l[0]]=l[1]);
+const S={hams:"فحثهشخصسكت",shidda:"ءجدقطبكت",bay:"لنعمر",istila:"خصضغطقظ",itbaq:"صضطظ",izlaq:"فرمنلب",safir:"صزس",qalqala:"قطبجد",lin:"وي",inhiraf:"لر",takrir:"ر",tafashshi:"ش",istitala:"ض"};
+const N={jahr:["Jahr","jarangli","s"],hams:["Hams","jarangsiz","w"],shidda:["Shidda","qattiq","s"],bayniyya:["Bayniyya","oraliq","n"],rakhawa:["Raxova","sirgʻaluvchi","w"],istila:["Isteʼlo","yoʻgʻon","s"],istifal:["Istefola","ingichka","w"],itbaq:["Itboq","yopiq","s"],infitah:["Infitoh","ochiq","w"],izlaq:["Izloq","ravon","n"],ismat:["Ismot","zich","n"],safir:["Safir","hushtaksimon","s"],qalqala:["Qalqala","tebranish","s"],lin:["Liyn","yumshoq","w"],inhiraf:["Inhirof","burilish","s"],takrir:["Takrir","takrorlanish","s"],tafashshi:["Tafashshiy","yoyilish","s"],istitala:["Istitola","choʻzilish","s"]};
+const YAKKA=[
+ {k:"safir",d:"Til uchi va old tishlar orasidan hushtakka oʻxshash tovush chiqadi."},
+ {k:"qalqala",d:"Sukunli holatda maxraj qattiq yopilib ochiladi va harf «sakrab», aks-sado bilan chiqadi. Yodlash: قُطْبُ جَدٍّ"},
+ {k:"lin",d:"Fathadan keyin kelgan sukunli و va ي yumshoq, osongina chiqadi: خَوْف ، بَيْت"},
+ {k:"inhiraf",d:"Tovush maxrajidan chiqib, tilning chetiga qarab buriladi."},
+ {k:"takrir",d:"Til uchi titrab, harf takrorlanishga moyil boʻladi. Uni ataylab takrorlamaslik kerak."},
+ {k:"tafashshi",d:"Nafas ogʻiz boʻylab yoyilib chiqadi."},
+ {k:"istitala",d:"Tovush tilning chetidan, maxrajning boshidan oxirigacha choʻziladi."}
+];
+const PAIRS=[
+ {id:"jh",tab:"Jahr · Hams",sides:[
+   {k:"jahr",def:"Talaffuz paytida tovush paychalari titraydi, nafas qamaladi, ovoz kuchli chiqadi.",test:c=>!S.hams.includes(c),rest:true},
+   {k:"hams",def:"Tovush paychalari titramaydi, harf bilan birga nafas oqib chiqadi.",test:c=>S.hams.includes(c),mn:"فَحَثَّهُ شَخْصٌ سَكَتَ",mean:"Bir kishi gapdan toʻxtagan kishini gapirishga undadi."}],
+  rule:"Hamsda bor harf jahrda boʻlmaydi, jahrda bori hamsda boʻlmaydi.",
+  tr:"Kaftingizni tomogʻingizga qoʻying. «zzz» deganda titraydi, «sss» deganda titramaydi, faqat nafas chiqadi.",ex:"ك"},
+ {id:"sr",tab:"Shidda · Bayniyya · Raxova",sides:[
+   {k:"shidda",def:"Maxrajga suyanish kuchli, shuning uchun ovoz (tovush) bir zumda uziladi.",test:c=>S.shidda.includes(c),mn:"أَجِدْ قَطٍ بَكَتْ",mean:"Yaxshilab bajar, boʻldi, gʻolib kelasan."},
+   {k:"bayniyya",def:"Qattiqlikda shidda harflaricha emas, sirgʻalishda raxova harflaricha ham emas: oʻrtada.",test:c=>S.bay.includes(c),mn:"لِنْ عُمَرْ",mean:"Muloyim boʻl, ey Umar!"},
+   {k:"rakhawa",def:"Maxrajga suyanish zaif, shuning uchun tovush sirgʻalib, choʻzilib turadi.",test:c=>!S.shidda.includes(c)&&!S.bay.includes(c),rest:true}],
+  rule:"8 ta shidda va 5 ta bayniyya harfidan boshqa barcha harflar raxova sifatiga ega.",
+  tr:"Harfni sukun bilan choʻzib koʻring: اَبْ darhol uziladi (shidda), اَلْ biroz davom etadi (bayniyya), اَسْ xohlagancha choʻziladi (raxova).",ex:"ب"},
+ {id:"ii",tab:"Isteʼlo · Istefola",sides:[
+   {k:"istila",def:"Talaffuz paytida til orqasi tanglay tomonga koʻtarilib turadi, harf yoʻgʻon chiqadi.",test:c=>S.istila.includes(c),mn:"خُصَّ ضَغْطٍ قِظْ",mean:"Yozning issiq kunini tor kulbada oʻtkaz."},
+   {k:"istifal",def:"Til orqasi tanglayga koʻtarilmay, pastda tabiiy holatda turadi, harf ingichka chiqadi.",test:c=>!S.istila.includes(c),rest:true}],
+  rule:"Istefolada bor harf isteʼloda boʻlmaydi yoki aksincha.",
+  tr:"قَ va كَ ni ketma-ket ayting. Qofda til orqasi yuqoriga koʻtarilib, ovoz «qalin» chiqadi; kofda til pastda qoladi.",ex:"ق"},
+ {id:"io",tab:"Itboq · Infitoh",sides:[
+   {k:"itbaq",def:"Ogʻiz toʻlib, tilning aksar qismi tanglayga koʻtariladi, nafas til va tanglay orasida qamaladi.",test:c=>S.itbaq.includes(c),mn:"صَادٌ ضَادٌ طَاءٌ ظَاءٌ",mean:"Faqat 4 harf: ص ض ط ظ"},
+   {k:"infitah",def:"Tilning katta qismi tanglayga koʻtarilmaydi, nafas tanglayda qamalmay chiqib ketadi.",test:c=>!S.itbaq.includes(c),rest:true}],
+  rule:"Infitohda bor harf itboqda boʻlmaydi yoki aksincha. Itboq harflari isteʼloning ham eng kuchlilari.",
+  tr:"سَ va صَ ni ayting. Sodda til tanglayga yopishadi, ogʻiz ichi «toʻla» boʻladi; sinda til ochiq qoladi.",ex:"ص"},
+ {id:"iz",tab:"Izloq · Ismot",sides:[
+   {k:"izlaq",def:"Til uchi va lablardan oson, ravon chiqadigan harflar.",test:c=>S.izlaq.includes(c),mn:"فَرَّ مِنْ لُبٍّ",mean:"(Johil) aql egasidan qochdi."},
+   {k:"ismat",def:"Ismot — «man qilish». Izloq harfi boʻlmagan, ogʻirroq chiqadigan harflar.",test:c=>!S.izlaq.includes(c),rest:true}],
+  rule:"Bu juftlik tajvidga unchalik aloqasi yoʻq, koʻproq sarf ilmiga tegishli. Asl arabcha 4 va 5 harfli soʻzlarda kamida bitta izloq harfi boʻladi.",
+  tr:"فَ ، رَ ، مَ ، نَ ، لَ ، بَ ni tez-tez ayting: barchasi lab yoki til uchidan yengil chiqadi.",ex:"م"}
+];
+function profile(c){
+  const p={jahr:!S.hams.includes(c),str:S.shidda.includes(c)?"shidda":S.bay.includes(c)?"bayniyya":"rakhawa",istila:S.istila.includes(c),itbaq:S.itbaq.includes(c),izlaq:S.izlaq.includes(c)};
+  p.pairs=[p.jahr?"jahr":"hams",p.str,p.istila?"istila":"istifal",p.itbaq?"itbaq":"infitah",p.izlaq?"izlaq":"ismat"];
+  p.yakka=YAKKA.map(y=>y.k).filter(k=>S[k].includes(c));
+  const all=p.pairs.concat(p.yakka.filter(k=>k!=="lin"));
+  p.strong=all.filter(k=>N[k][2]==="s").length;
+  p.weak=all.filter(k=>N[k][2]==="w").length;
+  return p;
+}
+const chip=(k,extra="")=>`<span class="chip ${N[k][2]} ${extra}">${N[k][0]}<small>${N[k][1]}</small></span>`;
+
+/* ---------- simulator ---------- */
+const PTS=[[109,300],[109,165],[118,140],[150,124],[205,114],[262,116],[305,126],[330,140],[352,150],[372,150]];
+const seg=[];let TOT=0;for(let i=1;i<PTS.length;i++){const dx=PTS[i][0]-PTS[i-1][0],dy=PTS[i][1]-PTS[i-1][1],l=Math.hypot(dx,dy);seg.push({a:PTS[i-1],dx,dy,l,s:TOT});TOT+=l}
+function at(t){let d=Math.max(0,Math.min(1,t))*TOT;for(const g of seg){if(d<=g.s+g.l){const f=(d-g.s)/g.l;return{x:g.a[0]+g.dx*f,y:g.a[1]+g.dy*f,nx:-g.dy/g.l,ny:g.dx/g.l}}}const g=seg[seg.length-1];return{x:g.a[0]+g.dx,y:g.a[1]+g.dy,nx:-g.dy/g.l,ny:g.dx/g.l}}
+const NS="http://www.w3.org/2000/svg";
+const pg=$("#particles"),NP=34,parts=[];
+for(let i=0;i<NP;i++){const c=document.createElementNS(NS,"circle");pg.appendChild(c);parts.push({el:c,t:i/NP,lane:((i*7)%9-4)*1.1,spread:Math.sin(i*12.9898)*1})}
+const waves=$("#waves");for(let i=0;i<2;i++){const p=document.createElementNS(NS,"path");waves.appendChild(p)}
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let cur="ق",cfg=null,paused=false,slow=reduce,time=0,last=performance.now(),tongueNow={b:0,m:0},ring=null,wasClosed=false;
+
+function config(c){
+  const p=profile(c),z=LET.find(l=>l[0]===c)[2];
+  return{c,p,stop:z,voiced:p.jahr,mode:p.str,b:p.istila?1:0,m:p.itbaq?1:0,qal:p.yakka.includes("qalqala"),safir:p.yakka.includes("safir"),taf:p.yakka.includes("tafashshi"),tak:p.yakka.includes("takrir"),inh:p.yakka.includes("inhiraf")};
+}
+function tonguePath(b,m,tip){
+  const by=168-50*b,my=166-52*m;
+  return `M124 262 C116 214,126 ${by+12},160 ${by} C196 ${by-8},222 ${my},258 ${my+3} C286 ${my+6},300 ${158+tip},314 ${166+tip} Q326 ${176+tip} 308 ${188+tip} C264 204,206 232,140 262 Z`;
+}
+function drawStop(){
+  const g=$("#stopmark");g.innerHTML="";
+  const p=at(cfg.stop),len=cfg.mode==="shidda"?16:cfg.mode==="bayniyya"?12:8;
+  const ln=document.createElementNS(NS,"line");
+  ln.setAttribute("x1",p.x-p.nx*len);ln.setAttribute("y1",p.y-p.ny*len);ln.setAttribute("x2",p.x+p.nx*len);ln.setAttribute("y2",p.y+p.ny*len);
+  ln.setAttribute("stroke","var(--stop)");ln.setAttribute("stroke-width",cfg.mode==="shidda"?4:3);ln.setAttribute("stroke-linecap","round");
+  if(cfg.mode==="rakhawa")ln.setAttribute("stroke-dasharray","3 4");
+  ln.id="stopline";g.appendChild(ln);
+}
+function frame(now){
+  let dt=Math.min(.05,(now-last)/1000);last=now;if(paused)dt=0;if(slow)dt*=.35;time+=dt;
+  // tongue easing
+  tongueNow.b+=(cfg.b-tongueNow.b)*Math.min(1,dt*6+(paused?0:0));tongueNow.m+=(cfg.m-tongueNow.m)*Math.min(1,dt*6);
+  if(paused&&dt===0){tongueNow.b=tongueNow.b;}
+  const tip=cfg.tak?Math.sin(time*38)*2.6:0;
+  $("#tongue").setAttribute("d",tonguePath(tongueNow.b,tongueNow.m,tip));
+  // cords
+  const cy=276;
+  if(cfg.voiced){const w=Math.sin(time*70)*2.2;$("#cordL").setAttribute("x1",99);$("#cordL").setAttribute("y1",cy);$("#cordL").setAttribute("x2",108);$("#cordL").setAttribute("y2",cy+w);$("#cordR").setAttribute("x1",119);$("#cordR").setAttribute("y1",cy);$("#cordR").setAttribute("x2",110);$("#cordR").setAttribute("y2",cy-w);}
+  else{$("#cordL").setAttribute("x1",99);$("#cordL").setAttribute("y1",cy);$("#cordL").setAttribute("x2",103);$("#cordL").setAttribute("y2",cy+8);$("#cordR").setAttribute("x1",119);$("#cordR").setAttribute("y1",cy);$("#cordR").setAttribute("x2",115);$("#cordR").setAttribute("y2",cy+8);}
+  // voice waves
+  [...waves.children].forEach((w,i)=>{if(!cfg.voiced){w.setAttribute("d","");return}const ph=((time*1.4+i*.5)%1),r=8+ph*22;w.setAttribute("d",`M${128} ${cy-r} A ${r} ${r} 0 0 1 ${128} ${cy+r}`);w.setAttribute("transform",`translate(${-8+ph*4} 0)`);w.setAttribute("opacity",(1-ph)*.8)});
+  // closure state
+  let closed=false;
+  if(cfg.mode==="shidda"){closed=(time%1.7)<1.15}
+  const sl=$("#stopline");if(sl)sl.setAttribute("opacity",cfg.mode==="shidda"?(closed?1:.25):cfg.mode==="bayniyya"?.75:.6);
+  if(wasClosed&&!closed&&cfg.qal)ring={t:0};
+  wasClosed=closed;
+  // particles
+  const base=(cfg.voiced?.2:.26);
+  const col=cfg.voiced?"var(--gold)":"var(--weak)";
+  for(const p of parts){
+    let sp=base;
+    if(cfg.mode==="shidda"){
+      if(closed&&p.t<cfg.stop&&p.t>cfg.stop-.22){p.t=Math.min(p.t+dt*sp,cfg.stop-.008-Math.abs(p.lane)*.004);}
+      else{if(!closed&&p.t>cfg.stop-.25&&p.t<cfg.stop+.12)sp*=4.2;p.t+=dt*sp}
+    }else if(cfg.mode==="bayniyya"){if(Math.abs(p.t-cfg.stop)<.07)sp*=.35;p.t+=dt*sp}
+    else{if(Math.abs(p.t-cfg.stop)<.04)sp*=.75;p.t+=dt*sp}
+    if(p.t>1){p.t-=1}
+    const q=at(p.t);let off=p.lane;
+    if(cfg.taf&&p.t>cfg.stop-.05)off+=p.spread*20*Math.min(1,(p.t-cfg.stop+.05)*6);
+    if(cfg.inh&&p.t>cfg.stop-.02&&p.t<cfg.stop+.08)off+=8;
+    let x=q.x+q.nx*off,y=q.y+q.ny*off;
+    p.el.setAttribute("cx",x.toFixed(1));p.el.setAttribute("cy",y.toFixed(1));
+    p.el.setAttribute("r",cfg.voiced?2.6:3.2);p.el.setAttribute("fill",col);
+    p.el.setAttribute("opacity",(p.t<.02||p.t>.96)?.15:(cfg.voiced?.95:.6));
+  }
+  // fx
+  const fx=$("#fx");fx.innerHTML="";
+  const sp=at(cfg.stop);
+  if(ring){ring.t+=dt*1.6;if(ring.t>1)ring=null;else{const c=document.createElementNS(NS,"circle");c.setAttribute("cx",sp.x);c.setAttribute("cy",sp.y);c.setAttribute("r",6+ring.t*26);c.setAttribute("fill","none");c.setAttribute("stroke","var(--stop)");c.setAttribute("stroke-width",2.5);c.setAttribute("opacity",1-ring.t);fx.appendChild(c);
+    const t=document.createElementNS(NS,"text");t.setAttribute("x",sp.x+10);t.setAttribute("y",sp.y-28);t.setAttribute("font-size","11");t.setAttribute("font-family","Onest,sans-serif");t.setAttribute("fill","var(--stop)");t.setAttribute("font-weight","700");t.setAttribute("opacity",1-ring.t);t.textContent="qalqala!";fx.appendChild(t)}}
+  if(cfg.safir){for(let i=0;i<3;i++){const ph=(time*1.8+i/3)%1,pa=document.createElementNS(NS,"path"),x=340+ph*36;pa.setAttribute("d",`M${x} 138 q4 -5 8 0 t8 0 t8 0`);pa.setAttribute("transform",`translate(0 ${i*6})`);pa.setAttribute("fill","none");pa.setAttribute("stroke","var(--accent)");pa.setAttribute("stroke-width",1.6);pa.setAttribute("opacity",(1-ph)*.9);fx.appendChild(pa)}}
+  if(cfg.b){const t=document.createElementNS(NS,"text");t.setAttribute("x",150);t.setAttribute("y",150);t.setAttribute("font-size","10");t.setAttribute("font-family","Onest,sans-serif");t.setAttribute("fill","var(--tongue-line)");t.setAttribute("font-weight","700");t.textContent=cfg.m?"↑ til tanglayga yopishgan":"↑ til orqasi koʻtarilgan";fx.appendChild(t)}
+  requestAnimationFrame(frame);
+}
+function describe(c,p){
+  const zone={0.17:"halqumning eng chuqur joyida",0.27:"halqumning oʻrtasida",0.35:"halqumning yuqorisida",0.44:"til ildizi va yumshoq tanglayda",0.52:"til orqasi va tanglayda",0.6:"til oʻrtasi va tanglayda",0.68:"til chetida",0.8:"til uchi atrofida",0.84:"til uchi va yuqori tish milkida",0.88:"til uchi va tishlar orasida",0.9:"til uchi va old tishlar uchida",0.95:"pastki lab va yuqori tishlarda",0.985:"lablarda"}[LET.find(l=>l[0]===c)[2]];
+  const L=[];
+  L.push(p.jahr?"Tovush paychalari titraydi, oltin rangli zarralar jarangli tovushni bildiradi (jahr).":"Tovush paychalari ochiq, titramaydi. Koʻk zarralar oqib chiqayotgan nafas (hams).");
+  L.push(p.str==="shidda"?`Havo ${zone} toʻliq toʻsiladi, keyin birdan ochiladi. Tovush uziladi (shidda).`:p.str==="bayniyya"?`Havo ${zone} qisman toʻxtaydi va sekin oʻtadi. Na qattiq, na sirgʻaluvchi (bayniyya).`:`Havo ${zone} toraygan yoʻldan sirgʻalib, toʻxtamay oʻtadi (raxova).`);
+  if(p.itbaq)L.push("Til orqasi ham, oʻrtasi ham tanglayga koʻtarilib yopishgan. Ogʻiz ichi «toʻla» (itboq + isteʼlo).");
+  else if(p.istila)L.push("Til orqasi tanglayga koʻtarilgan, harf yoʻgʻon chiqadi (isteʼlo).");
+  else L.push("Til pastda, tabiiy holatda. Harf ingichka chiqadi (istefola, infitoh).");
+  if(p.yakka.includes("qalqala"))L.push("Sukunda toʻsiq ochilganda harf «sakraydi» — qizil halqa aks-sadoni koʻrsatadi (qalqala).");
+  if(p.yakka.includes("safir"))L.push("Tishlar orasidan hushtakka oʻxshash tovush chiqadi (safir).");
+  if(p.yakka.includes("tafashshi"))L.push("Nafas ogʻiz boʻylab yelpigʻichdek yoyiladi (tafashshiy).");
+  if(p.yakka.includes("takrir"))L.push("Til uchi titraydi — takrorlanishga moyil (takrir).");
+  if(p.yakka.includes("inhiraf"))L.push("Tovush til chetiga buriladi (inhirof).");
+  if(p.yakka.includes("istitala"))L.push("Tovush til cheti boʻylab choʻziladi (istitola).");
+  return L;
+}
+function tryTip(c,p){
+  const f=c==="ء"?"أَ":`اَ${c}ْ`;
+  if(p.yakka.includes("qalqala"))return `<span class="ar" style="font-size:1.5rem">${f}</span> deb ayting: oxirida harf yengil sakrab, aks-sado berishi kerak.`;
+  if(!p.jahr)return `<span class="ar" style="font-size:1.5rem">${f}</span> deb ayting va kaftingizni ogʻzingiz oldiga tuting: nafas sezilishi kerak, tomoq titramaydi.`;
+  if(p.str==="rakhawa")return `<span class="ar" style="font-size:1.5rem">${f}</span> deb ayting va tovushni choʻzing: u uzilmay davom etadi, tomoq esa titraydi.`;
+  return `<span class="ar" style="font-size:1.5rem">${f}</span> deb ayting va kaftingizni tomogʻingizga qoʻying: titrashni sezasiz.`;
+}
+function select(c,scroll){
+  cur=c;cfg=config(c);drawStop();ring=null;
+  document.querySelectorAll("#picker button").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.c===c);if(b.dataset.c===c&&b.parentNode.scrollWidth>b.parentNode.clientWidth){const pp=b.parentNode;pp.scrollTo({left:b.offsetLeft-pp.clientWidth/2+b.clientWidth/2,behavior:reduce?"auto":"smooth"})}});
+  $("#svgLetter").textContent=c;
+  const p=cfg.p,tot=p.strong+p.weak||1;
+  $("#info").innerHTML=`
+   <div class="bigletter"><div class="glyph">${c}</div><div><span class="eyebrow">Tanlangan harf</span><h3>${NAME[c]}</h3><span class="muted">${p.pairs.length+p.yakka.length} ta sifat</span></div></div>
+   <div><div class="eyebrow" style="margin-bottom:6px">Juft sifatlardan</div><div class="chips">${p.pairs.map(k=>chip(k)).join("")}</div></div>
+   ${p.yakka.length?`<div><div class="eyebrow" style="margin-bottom:6px">Yakka sifatlar</div><div class="chips">${p.yakka.map(k=>chip(k,k==="lin"?"c":"")).join("")}</div>${p.yakka.includes("lin")?'<p class="src" style="margin-top:4px">Liyn faqat fathadan keyin sukunli boʻlganda.</p>':""}</div>`:""}
+   <div class="meter"><div class="lbl"><span>Kuchli: ${p.strong}</span><span>Zaif: ${p.weak}</span></div><div class="bar"><span style="width:${p.strong/tot*100}%;background:var(--strong)"></span><span style="width:${p.weak/tot*100}%;background:var(--weak)"></span></div></div>
+   <ul class="explain">${describe(c,p).map(s=>`<li><span>${s}</span></li>`).join("")}</ul>
+   <div class="tryit"><b>Oʻzingiz sinang</b>${tryTip(c,p)}</div>`;
+  if(scroll)$("#sim").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+}
+const pk=$("#picker");LET.forEach(([c,n])=>{const b=document.createElement("button");b.type="button";b.dataset.c=c;b.textContent=c;b.title=n;b.setAttribute("aria-label",n);b.onclick=()=>{XT.haptic();select(c)};pk.appendChild(b)});
+$("#pauseBtn").onclick=e=>{paused=!paused;e.target.textContent=paused?"Davom ettirish":"Toʻxtatish"};
+$("#slowBtn").onclick=e=>{slow=!slow;e.target.setAttribute("aria-pressed",slow);e.target.classList.toggle("primary",slow)};
+if(slow){$("#slowBtn").setAttribute("aria-pressed","true");$("#slowBtn").classList.add("primary")}
+$("#randBtn").onclick=()=>{let c;do{c=LET[Math.floor(Math.random()*LET.length)][0]}while(c===cur);select(c)};
+select("ق");requestAnimationFrame(t=>{last=t;frame(t)});
+
+/* ---------- pairs ---------- */
+let pairIdx=0;
+function renderTabs(){$("#pairTabs").innerHTML=PAIRS.map((p,i)=>`<button role="tab" id="tab-${p.id}" aria-selected="${i===pairIdx}" data-i="${i}">${p.tab}</button>`).join("");
+  document.querySelectorAll("#pairTabs button").forEach(b=>b.onclick=()=>{pairIdx=+b.dataset.i;renderTabs();renderPair()})}
+function renderPair(){
+  const P=PAIRS[pairIdx],letters=LET.map(l=>l[0]);
+  const counts=P.sides.map(s=>letters.filter(c=>s.test(c)).length);
+  const cols={s:"var(--strong)",w:"var(--weak)",n:"var(--neutral)"};
+  $("#pairPanel").innerHTML=`
+   <div class="sides" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">${P.sides.map((s,i)=>`
+     <div class="side ${N[s.k][2]}">
+       <div class="nm"><b>${N[s.k][0]}</b><span>${N[s.k][1]}</span><span class="tag">${N[s.k][2]==="s"?"kuchli":N[s.k][2]==="w"?"zaif":"oʻrta"}</span></div>
+       <p style="font-size:.93rem">${s.def}</p>
+       ${s.mn?`<div class="mnem">${s.mn}</div><div class="mean">${s.mean}</div>`:`<div class="mean">Qolgan barcha harflar</div>`}
+       <div class="count">${counts[i]} ta harf: <span class="ar" style="font-size:1.2rem">${letters.filter(c=>s.test(c)).join(" ")}</span></div>
+     </div>`).join("")}</div>
+   <div class="splitbar" aria-label="Harflar taqsimoti">${P.sides.map((s,i)=>`<span style="flex-grow:${counts[i]};background:${cols[N[s.k][2]]}">${N[s.k][0]} ${counts[i]}</span>`).join("")}</div>
+   <div class="lgrid">${letters.map(c=>{const s=P.sides.find(s=>s.test(c));return `<div class="${N[s.k][2]}" title="${NAME[c]} — ${N[s.k][0]}">${c}</div>`}).join("")}</div>
+   <p class="rule">${P.rule}</p>
+   <div class="tryit"><b>Amalda his qiling</b>${P.tr}</div>
+   <div><button class="btn primary" type="button" id="pairSim">Simulyatorda koʻrish: <span class="ar" style="font-size:1.2rem">${P.ex}</span></button></div>`;
+  $("#pairSim").onclick=()=>select(P.ex,true);
+}
+renderTabs();renderPair();
+
+/* ---------- singles ---------- */
+$("#singlesGrid").innerHTML=YAKKA.map(y=>`<button class="single" type="button" data-c="${S[y.k][0]}"><div class="top"><b>${N[y.k][0]}</b><span class="chip ${N[y.k][2]}">${N[y.k][1]}</span></div><div class="ltrs">${S[y.k].split("").join(" ")}</div><p>${y.d}</p></button>`).join("");
+document.querySelectorAll(".single").forEach(b=>b.onclick=()=>select(b.dataset.c,true));
+
+/* ---------- strength chart ---------- */
+(function(){
+  const svg=$("#strengthChart"),X0=34,SL=20,Y0=118,U=17;
+  const data=LET.map(l=>({c:l[0],...profile(l[0])})).sort((a,b)=>(b.strong-b.weak)-(a.strong-a.weak)||b.strong-a.strong);
+  let h="";
+  for(let v=-4;v<=5;v++){const y=Y0-v*U;h+=`<line x1="${X0}" x2="${X0+28*SL}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="${v===0?1.5:.6}"/>`;if(v!==0)h+=`<text x="${X0-6}" y="${y+3.5}" text-anchor="end" font-size="9" fill="var(--muted)" font-family="Onest,sans-serif">${Math.abs(v)}</text>`}
+  h+=`<text x="${X0-6}" y="22" text-anchor="end" font-size="9" fill="var(--strong)" font-family="Onest,sans-serif" font-weight="700">kuchli</text>`;
+  h+=`<text x="${X0-6}" y="${Y0+4*U+16}" text-anchor="end" font-size="9" fill="var(--weak)" font-family="Onest,sans-serif" font-weight="700">zaif</text>`;
+  data.forEach((d,i)=>{const x=X0+i*SL+3,w=SL-6;
+    h+=`<g class="barhit" data-c="${d.c}" tabindex="0" role="button" aria-label="${NAME[d.c]}: kuchli ${d.strong}, zaif ${d.weak}"><title>${NAME[d.c]}: kuchli ${d.strong}, zaif ${d.weak}</title><rect class="bg" x="${X0+i*SL}" y="20" width="${SL}" height="${8*U+70}" fill="transparent"/>`;
+    if(d.strong)h+=`<rect x="${x}" y="${Y0-d.strong*U}" width="${w}" height="${d.strong*U}" rx="3" fill="var(--strong)"/>`;
+    if(d.weak)h+=`<rect x="${x}" y="${Y0}" width="${w}" height="${d.weak*U}" rx="3" fill="var(--weak)"/>`;
+    h+=`<text x="${x+w/2}" y="${Y0+4*U+30}" text-anchor="middle" font-size="17" fill="var(--ink)" font-family="Scheherazade New,Amiri,serif">${d.c}</text></g>`});
+  svg.innerHTML=h;
+  svg.querySelectorAll(".barhit").forEach(g=>{g.onclick=()=>select(g.dataset.c,true);g.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(g.dataset.c,true)}}});
+})();
+
+/* ---------- quiz ---------- */
+let qOk=0,qAll=0,streak=0,best=0;
+try{best=+localStorage.getItem("hs_best")||0}catch(e){}
+$("#qBest").textContent=best;
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+function newQ(){
+  $("#qFb").textContent="";const opts=$("#qOpts");opts.innerHTML="";
+  let q;
+  if(Math.random()<.65){
+    const P=rnd(PAIRS.slice(0,4)),c=rnd(LET)[0],ans=P.sides.find(s=>s.test(c));
+    q={html:`<span class="ar">${c}</span> (${NAME[c]}) harfida qaysi sifat bor?`,opts:P.sides.map(s=>({t:N[s.k][0]+" · "+N[s.k][1],ok:s===ans})),
+      why:ans.mn?`${N[ans.k][0]} harflari: ${ans.mn}`:`${c} harfi ${P.sides.filter(s=>s.mn).map(s=>s.mn).join(" va ")} ichida yoʻq, demak ${N[ans.k][0]}.`};
+  }else{
+    const Y=rnd(YAKKA.filter(y=>y.k!=="lin")),good=rnd(S[Y.k].split("")),bad=shuffle(LET.map(l=>l[0]).filter(c=>!S[Y.k].includes(c))).slice(0,3);
+    q={html:`Qaysi harfda <b>${N[Y.k][0]}</b> (${N[Y.k][1]}) sifati bor?`,ar:true,opts:shuffle([{t:good,ok:true},...bad.map(t=>({t,ok:false}))]),why:`${N[Y.k][0]} harflari: ${S[Y.k].split("").join(" ")}`};
+  }
+  $("#qText").innerHTML=q.html;
+  q.opts.forEach(o=>{const b=document.createElement("button");b.type="button";b.textContent=o.t;if(q.ar)b.className="ar";
+    b.onclick=()=>{qAll++;if(o.ok){qOk++;streak++;b.classList.add("ok");$("#qFb").innerHTML=`<b style="color:var(--strong)">Toʻgʻri!</b> ${q.why}`}
+      else{streak=0;b.classList.add("bad");[...opts.children].forEach((x,i)=>{if(q.opts[i].ok)x.classList.add("ok")});$("#qFb").innerHTML=`<b style="color:var(--stop)">Xato.</b> ${q.why}`}
+      if(streak>best){best=streak;try{localStorage.setItem("hs_best",best)}catch(e){}}
+      XT.haptic(o.ok?"ok":"bad");
+      XT.setLesson("harf-sifatlari",{opened:true,best:best,correct:qOk,done:qOk>=10});
+      if(qOk===10){$("#qFb").innerHTML+='<div class="done-banner" style="margin-top:10px">10 ta toʻgʻri javob! Dars tugallangan deb belgilandi.</div>'}
+      [...opts.children].forEach(x=>x.disabled=true);
+      $("#qOk").textContent=qOk;$("#qAll").textContent=qAll;$("#qStreak").textContent=streak;$("#qBest").textContent=best};
+    opts.appendChild(b)});
+}
+$("#qNext").onclick=newQ;newQ();
+if(window.XT){XT.setLesson("harf-sifatlari",{opened:true});XT.backTo("index.html");if(XT.inTelegram)$("#backlink").hidden=true;}
+</script>
+
+</body>
+</html>
